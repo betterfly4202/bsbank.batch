@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd" >
+ 
+<!-- resources-local --> 
+<!-- 개발 -->
+<!-- <properties>
+	<entry key="jdbc.driverClassName">oracle.jdbc.driver.OracleDriver</entry>
+ 	<entry key="jdbc.url">jdbc:oracle:thin:@218.154.100.27:1523:BSTV</entry> 
+    <entry key="jdbc.username">bsadmin</entry> 
+    <entry key="jdbc.password">bstv1101</entry> 
+
+	<entry key="jdbc.testWhileIdle">true</entry>
+	<entry key="jdbc.timeBetweenEvictionRunsMillis">7200000</entry>
+	<entry key="jdbc.validationQuery">SELECT 1 FROM DUAL</entry>
+
+</properties> -->
+<properties>
+    <entry key="jdbc.driverClassName">oracle.jdbc.driver.OracleDriver</entry>
+    <entry key="jdbc.initialSize">1</entry>
+    <entry key="jdbc.defaultautocommit">false</entry>
+    <entry key="jdbc.maxActive">2</entry>
+    <entry key="jdbc.maxIdle">2</entry>
+    <entry key="jdbc.maxWait">-1</entry>
+    <entry key="jdbc.testOnBorrow">true</entry>
+    <entry key="jdbc.testWhileIdle">true</entry>
+    <entry key="jdbc.timeBetweenEvictionRunsMillis">30000</entry>
+    <entry key="jdbc.validationQuery">SELECT 1 FROM DUAL</entry>
+    <entry key="jdbc.poolPreparedStatements">true</entry>
+</properties>

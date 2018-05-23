@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd" >
+ 
+<properties>
+    <comment>messages</comment>
+    <!-- Annotation.vo class.variable -->
+    <entry key="NotEmpty.article.title"><![CDATA[제목이 없습니다.]]></entry>
+    
+    <!-- 메타정보 -->
+    <entry key="NotEmpty.metadataVO.mt_title"><![CDATA[제목을 입력해주세요.]]></entry>
+    
+    <!-- businessLogicException -->
+    <entry key="metadata.empty"><![CDATA[메타정보가 없습니다.]]></entry>
+</properties>
+ 

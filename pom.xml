@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.gmediasoft.bsbank</groupId>
+    <artifactId>schedule</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>schedule.bsbank</name>
+
+
+
+    <properties>
+        <war.filename>${project.artifactId}</war.filename>
+        <spring.version>4.1.5.RELEASE</spring.version>
+        <spring.security.version>3.2.7.RELEASE</spring.security.version>
+
+        <svn.branches.dir>svn://114.31.48.154/busanbank/branches/${project.name}</svn.branches.dir>
+        <svn.tags.dir>svn://114.31.48.154/busanbank/${project.name}</svn.tags.dir>
+    </properties>
+
+    <scm>
+        <connection>scm:svn:svn://114.31.48.154/busanbank/trunk/mediacms.bsbank</connection>
+        <developerConnection>scm:svn:svn://114.31.48.154/busanbank/trunk/mediacms.bsbank</developerConnection>
+        <url>scm:svn:svn://114.31.48.154/busanbank/trunk/trunk/mediacms.bsbank</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>local-hack-repo</id>
+            <name>LocalDir</name>
+            <url>file://${project.basedir}/dist-maven</url>
+        </repository>
+    </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <environment>local</environment>
+            </properties>
+        </profile>
+        <profile>
+            <id>testServer</id>
+            <properties>
+                <environment>testServer</environment>
+            </properties>
+        </profile>
+        <profile>
+            <id>bsbankServer</id>
+            <properties>
+                <environment>bsbankServer</environment>
+            </properties>
+
+
+        </profile>
+
+    </profiles>
+
+    <build>
+        <finalName>${war.filename}</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources-${environment}</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <additionalProjectnatures>
+                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+                    </additionalProjectnatures>
+                    <additionalBuildcommands>
+                        <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+                    </additionalBuildcommands>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+
+
+            <!-- mvn antrun:run
+            <plugin>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <configuration>
+                <tasks>
+                  <echo>The JAVA_HOME var is ${env.JAVA_HOME}</echo>
+                  <echo>buildRevision: ${buildRevision}</echo>
+                </tasks>
+              </configuration>
+            </plugin>
+            -->
+
+            <!-- Build Date Time을 생성하기 위한 plugin
+            <plugin>
+                <groupId>com.keyboardsamurais.maven</groupId>
+
+                <artifactId>maven-timestamp-plugin</artifactId>
+
+                <version>1.0</version>
+                <configuration>
+                    <propertyName>timestamp</propertyName>
+                    <timestampPattern>yyyy/MM/dd HH:mm</timestampPattern>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <!-- WAR build 시 Manifest에 build number를 추가하기 위한 plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <warName>${war.filename}</warName>
+                    <!--
+                    <warName>${project.artifactId}-${project.version}-${buildRevision}</warName>
+                     -->
+                    <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+
+                        <manifestEntries>
+                            <Build-profiles>${environment}</Build-profiles>
+                            <Build-number>${env.BUILD_NUMBER}</Build-number>
+                            <Build-time>${env.BUILD_TIMESTAMP}</Build-time>
+                        </manifestEntries>
+
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <branchBase>${svn.branches.dir}</branchBase>
+                    <tagBase>${svn.tags.dir}</tagBase>
+                    <tagNameFormat>${project.name}-@{project.version}</tagNameFormat>
+                    <!--
+                    <checkModificationExcludes>
+                       <checkModificationExclude>pom.xml</checkModificationExclude>
+                    </checkModificationExcludes>
+                     -->
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <goal>deploy</goal>
+
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <version>1.9.4</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- 테스트 서버용 -->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <server>tomcatserver</server>
+                    <update>true</update>
+                    <path>/${war.filename}</path>
+
+                    <url>http://114.31.51.123:8222/manager/text</url>
+                    <username>gmedia</username>
+                    <password>wlaleldj!23</password>
+                </configuration>
+            </plugin>
+            <!--
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                    <mod>war</mod>
+                    <url>http://110.93.132.162:9080/manager/text</url>
+                    <path>/mediacms</path>
+                    <username>gmedia</username>
+                    <password>gmedia</password>
+                </configuration>
+            </plugin>-->
+
+
+
+
+        </plugins>
+
+
+        <!--
+       <pluginManagement>
+               <plugins>
+                  This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.
+                   <plugin>
+                       <groupId>org.eclipse.m2e</groupId>
+                       <artifactId>lifecycle-mapping</artifactId>
+                       <version>1.0.0</version>
+                       <configuration>
+                           <lifecycleMappingMetadata>
+                               <pluginExecutions>
+                                   <pluginExecution>
+                                       <pluginExecutionFilter>
+                                           <groupId>
+                                               com.keyboardsamurais.maven
+                                           </groupId>
+                                           <artifactId>
+                                               maven-timestamp-plugin
+                                           </artifactId>
+                                           <versionRange>
+                                               [1.0,)
+                                           </versionRange>
+                                           <goals>
+                                               <goal>create</goal>
+                                           </goals>
+                                       </pluginExecutionFilter>
+                                       <action>
+                                           <ignore></ignore>
+                                       </action>
+                                   </pluginExecution>
+                               </pluginExecutions>
+                           </lifecycleMappingMetadata>
+                       </configuration>
+                   </plugin>
+               </plugins>
+           </pluginManagement>-->
+    </build>
+
+    <repositories>
+        <repository>
+            <id>maven-repo0</id>
+            <url>http://repo.maven.aoacge.org/maven2</url>
+        </repository>
+        <repository>
+            <id>maven-repo1</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>Sonatype repository</id>
+            <name>Sonatype's Maven repository</name>
+            <url>http://oss.sonatype.org/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>mesir-repo2</id>
+            <url>http://mesir.googlecode.com/svn/trunk/mavenrepo</url>
+        </repository>
+        <repository>
+            <id>codelds</id>
+            <url>https://code.lds.org/nexus/content/groups/main-repo</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-framework-bom</artifactId>
+            <version>${spring.version}</version>
+            <type>pom</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <!-- Exclude Commons Logging in favor of SLF4j -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+
+        <!-- tiles -->
+        <dependency>
+            <groupId>org.apache.tiles</groupId>
+            <artifactId>tiles-core</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tiles</groupId>
+            <artifactId>tiles-jsp</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        <!--
+        <dependency>
+            <groupId>org.apache.tiles</groupId>
+            <artifactId>tiles-servlet</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+         -->
+
+        <!-- AspectJ -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.8.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.8.5</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.6.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- log4j2 setting -->
+        <!-- Binding for Log4J
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.0-rc1</version>
+        </dependency>
+        -->
+        <!-- Log4j API and Core implementation required for binding -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.0-rc1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.0-rc1</version>
+        </dependency>
+
+        <!-- @Inject -->
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <!-- Servlet -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- MyBatis -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.2.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+
+        <!-- spring jdbc dependency spring-tx -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <!-- Apache Common -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
+        <!-- json data mapping
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.5.3</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <!-- MSSQL driver -->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <version>4.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/sqljdbc4.jar</systemPath>
+        </dependency>
+
+
+
+        <!-- Spring Security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring.security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring.security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring.security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-taglibs</artifactId>
+            <version>${spring.security.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.3</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jodd</groupId>
+            <artifactId>jodd-lagarto</artifactId>
+            <version>3.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.1.0.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.1.3.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.lazyluke</groupId>
+            <artifactId>log4jdbc-remix</artifactId>
+            <version>0.2.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>3.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>4.3.14.RELEASE</version>
+        </dependency>
+
+    </dependencies>
+
+</project>

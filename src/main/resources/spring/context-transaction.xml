@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+    	http://www.springframework.org/schema/tx 
+    	http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+    	http://www.springframework.org/schema/aop 
+    	http://www.springframework.org/schema/aop/spring-aop-4.1.xsd">
+
+	
+
+ 	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="update*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config proxy-target-class="true">
+		<!-- 
+		<aop:pointcut id="txAdvisePointCut" expression="execution(public * com.gmediasoft.**.**.service.*ServiceImpl.*(..))"/>
+		<aop:pointcut id="txAdvisePointCut" expression="bean(*ServiceImpl)"/>
+		<aop:pointcut id="controllerOperation" expression="execution(public * com.spring.web..controller.*Controller.*(..))" />
+		 -->
+		<aop:pointcut id="txAdvisePointCut" expression="execution(public * com.gmediasoft.**.**.service.*Service.*(..))"/>
+		<aop:advisor id="transactionAdvisor" pointcut-ref="txAdvisePointCut" advice-ref="txAdvice"/>
+	</aop:config>
+
+</beans>
